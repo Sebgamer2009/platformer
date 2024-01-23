@@ -1,0 +1,171 @@
+<html>
+<head>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="400" height="400"></canvas>
+  <script>
+    // Get the canvas element and its context
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    // Define some constants
+    var tileSize = 20; // The size of each tile in pixels
+    var numRows = canvas.height / tileSize; // The number of rows in the grid
+    var numCols = canvas.width / tileSize; // The number of columns in the grid
+    var up = 0, right = 1, down = 2, left = 3; // The directions of movement
+    var snakeColor = "green"; // The color of the snake
+    var foodColor = "red"; // The color of the food
+    var backgroundColor = "white"; // The color of the background
+
+    // Define some variables
+    var snake = []; // The snake as an array of tiles
+    var direction = right; // The current direction of the snake
+    var food = null; // The current food tile
+    var score = 0; // The current score
+    var gameOver = false; // The game over flag
+
+    // Initialize the snake with two tiles
+    snake.push({x: 0, y: 0});
+    snake.push({x: 1, y: 0});
+
+    // Generate a random food tile
+    function generateFood() {
+      // Choose a random position in the grid
+      var x = Math.floor(Math.random() * numCols);
+      var y = Math.floor(Math.random() * numRows);
+
+      // Check if the position is occupied by the snake
+      for (var i = 0; i < snake.length; i++) {
+        if (snake[i].x == x && snake[i].y == y) {
+          // If yes, try again
+          return generateFood();
+        }
+      }
+
+      // If not, return the position as the food tile
+      return {x: x, y: y};
+    }
+
+    // Update the game logic
+    function update() {
+      // If the game is over, do nothing
+      if (gameOver) {
+        return;
+      }
+
+      // Move the snake by adding a new head and removing the tail
+      var head = snake[snake.length - 1]; // The current head of the snake
+      var newHead = {x: head.x, y: head.y}; // The new head of the snake
+
+      // Change the new head position based on the direction
+      if (direction == up) {
+        newHead.y--;
+      }
+      else if (direction == right) {
+        newHead.x++;
+      }
+      else if (direction == down) {
+        newHead.y++;
+      }
+      else if (direction == left) {
+        newHead.x--;
+      }
+
+      // Check if the new head is out of bounds
+      if (newHead.x < 0 || newHead.x >= numCols || newHead.y < 0 || newHead.y >= numRows) {
+        // If yes, set the game over flag and return
+        gameOver = true;
+        return;
+      }
+
+      // Check if the new head is colliding with the snake
+      for (var i = 0; i < snake.length; i++) {
+        if (snake[i].x == newHead.x && snake[i].y == newHead.y) {
+          // If yes, set the game over flag and return
+          gameOver = true;
+          return;
+        }
+      }
+
+      // Add the new head to the snake
+      snake.push(newHead);
+
+      // Check if the new head is eating the food
+      if (newHead.x == food.x && newHead.y == food.y) {
+        // If yes, increase the score and generate a new food
+        score++;
+        food = generateFood();
+      }
+      else {
+        // If not, remove the tail of the snake
+        snake.shift();
+      }
+    }
+
+    // Draw the game graphics
+    function draw() {
+      // Clear the canvas
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the snake
+      ctx.fillStyle = snakeColor;
+      for (var i = 0; i < snake.length; i++) {
+        var tile = snake[i];
+        ctx.fillRect(tile.x * tileSize, tile.y * tileSize, tileSize, tileSize);
+      }
+
+      // Draw the food
+      ctx.fillStyle = foodColor;
+      ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+
+      // Draw the score
+      ctx.fillStyle = "black";
+      ctx.font = "20px Arial";
+      ctx.fillText("Score: " + score, 10, 30);
+
+      // Draw the game over message
+      if (gameOver) {
+        ctx.fillStyle = "black";
+        ctx.font = "40px Arial";
+        ctx.fillText("Game Over", 100, 200);
+      }
+    }
+
+    // Handle the keyboard input
+    function handleKey(e) {
+      // Get the key code
+      var key = e.keyCode;
+
+      // Change the direction based on the key
+      if (key == 37 && direction != right) { // Left arrow
+        direction = left;
+      }
+      else if (key == 38 && direction != down) { // Up arrow
+        direction = up;
+      }
+      else if (key == 39 && direction != left) { // Right arrow
+        direction = right;
+      }
+      else if (key == 40 && direction != up) { // Down arrow
+        direction = down;
+      }
+    }
+
+    // Add the keyboard event listener
+    document.addEventListener("keydown", handleKey);
+
+    // Start the game loop
+    food = generateFood(); // Generate the first food
+    setInterval(function() {
+      update(); // Update the game logic
+      draw(); // Draw the game graphics
+    }, 100); // Repeat every 100 milliseconds
+  </script>
+</body>
+</html>
