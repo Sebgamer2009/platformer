@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* Style the header */
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background-color: lightblue;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Style the header text */
+    #header-text {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    }
+
+    /* Style the game links */
+    .game-link {
+      display: block;
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid black;
+      text-decoration: none;
+      color: black;
+    }
+
+    /* Style the game links on hover */
+    .game-link:hover {
+      background-color: lightgray;
+    }
+  </style>
+</head>
+<body>
+  <!-- The header element -->
+  <div id="header">
+    <!-- The header text -->
+    <span id="header-text">Welcome to simple games to play!</span>
+  </div>
+
+  <!-- The menu element -->
+  <div id="menu">
+    <!-- The menu items -->
+    <div class="menu-item" onclick="goToGame('tic-tac-toe')">Tic-Tac-Toe</div>
+    <div class="menu-item" onclick="goToGame('snake')">Snake</div>
+    <!-- Add more menu items here -->
+  </div>
+
+  <!-- The main content element -->
+  <div id="main">
+    <!-- The game links -->
+    <a class="https://sebgamer2009.github.io/tic-tac-to/" href="index (5).html">Tic-Tac-Toe</a>
+    <a class="https://sebgamer2009.github.io/Snake/" href="index (6).html">Snake</a>
+    <a class="https://sebgamer2009.github.io/Rockpaperscissors-vs-ai/" href="index (4).html">Rock Paper Scissors</a>
+    <a class="https://sebgamer2009.github.io/Guess-the-number-/" href="index (3).html">Guess the number</a>
+    <!-- Add more game links here -->
+  </div>
+
+  <script>
+    // The function to go to a game page
+    function goToGame(game) {
+      window.location.href = game + ".html";
+    }
+
+    // The function to show the menu when the cursor is near the left edge
+    function showMenu() {
+      document.getElementById("menu").style.left = "0px";
+    }
+
+    // The function to hide the menu when the cursor is away from the left edge
+    function hideMenu() {
+      document.getElementById("menu").style.left = "-200px";
+    }
+
+    // Add event listeners to the body element
+    document.body.addEventListener("mousemove", function(event) {
+      // Get the x coordinate of the cursor
+      var x = event.clientX;
+
+      // If the x coordinate is less than 50, show the menu
+      if (x < 50) {
+        showMenu();
+      }
+      // Otherwise, hide the menu
+      else {
+        hideMenu();
+      }
+    });
+  </script>
+</body>
+</html>
