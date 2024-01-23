@@ -1,99 +1,188 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    /* Style the header */
-    #header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50px;
-      background-color: lightblue;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    <style>
+        /* Define the style for the canvas and the player */
+        #canvas {
+            border: 1px solid black;
+            background-color: lightblue;
+        }
 
-    /* Style the header text */
-    #header-text {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    }
-
-    /* Style the game links */
-    .game-link {
-      display: block;
-      margin: 10px;
-      padding: 10px;
-      border: 1px solid black;
-      text-decoration: none;
-      color: black;
-    }
-
-    /* Style the game links on hover */
-    .game-link:hover {
-      background-color: lightgray;
-    }
-  </style>
+        .player {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            position: absolute;
+        }
+    </style>
 </head>
 <body>
-  <!-- The header element -->
-  <div id="header">
-    <!-- The header text -->
-    <span id="header-text">Welcome to simple games to play!</span>
-  </div>
+    <canvas id="canvas" width="400" height="300"></canvas>
+    <script>
+        // Get the canvas and its context
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
 
-  <!-- The menu element -->
-  <div id="menu">
-    <!-- The menu items -->
-    <div class="menu-item" onclick="goToGame('tic-tac-toe')">Tic-Tac-Toe</div>
-    <div class="menu-item" onclick="goToGame('snake')">Snake</div>
-    <!-- Add more menu items here -->
-  </div>
+        // Define some constants for the game
+        var GRAVITY = 0.5; // The gravity force
+        var FRICTION = 0.8; // The friction coefficient
+        var JUMP = 10; // The jump velocity
+        var SPEED = 5; // The horizontal speed
 
-  <!-- The main content element -->
-  <div id="main">
-    <!-- The game links -->
-    <a class="https://sebgamer2009.github.io/tic-tac-to/" href="index (5).html">Tic-Tac-Toe</a>
-    <a class="https://sebgamer2009.github.io/Snake/" href="index (6).html">Snake</a>
-    <a class="https://sebgamer2009.github.io/Rockpaperscissors-vs-ai/" href="index (4).html">Rock Paper Scissors</a>
-    <a class="https://sebgamer2009.github.io/Guess-the-number-/" href="index (3).html">Guess the number</a>
-    <!-- Add more game links here -->
-  </div>
+        // Define the player object
+        var player = {
+            x: 50, // The x position
+            y: 50, // The y position
+            vx: 0, // The x velocity
+            vy: 0, // The y velocity
+            onGround: false, // Whether the player is on the ground
+            element: document.createElement("div") // The HTML element for the player
+        };
 
-  <script>
-    // The function to go to a game page
-    function goToGame(game) {
-      window.location.href = game + ".html";
-    }
+        // Add the player element to the body and set its class
+        document.body.appendChild(player.element);
+        player.element.className = "player";
 
-    // The function to show the menu when the cursor is near the left edge
-    function showMenu() {
-      document.getElementById("menu").style.left = "0px";
-    }
+        // Define the platforms array
+        var platforms = [
+            {x: 0, y: 280, w: 400, h: 20}, // The floor
+            {x: 100, y: 200, w: 100, h: 20}, // A platform
+            {x: 250, y: 150, w: 100, h: 20} // Another platform
+        ];
 
-    // The function to hide the menu when the cursor is away from the left edge
-    function hideMenu() {
-      document.getElementById("menu").style.left = "-200px";
-    }
+        // Define the keys object to store the pressed keys
+        var keys = {};
 
-    // Add event listeners to the body element
-    document.body.addEventListener("mousemove", function(event) {
-      // Get the x coordinate of the cursor
-      var x = event.clientX;
+        // Add an event listener for the keydown event
+        document.addEventListener("keydown", function(e) {
+            // Set the key to true in the keys object
+            keys[e.keyCode] = true;
+        });
 
-      // If the x coordinate is less than 50, show the menu
-      if (x < 50) {
-        showMenu();
-      }
-      // Otherwise, hide the menu
-      else {
-        hideMenu();
-      }
-    });
-  </script>
+        // Add an event listener for the keyup event
+        document.addEventListener("keyup", function(e) {
+            // Set the key to false in the keys object
+            keys[e.keyCode] = false;
+        });
+
+        // Define the update function to update the game logic
+        function update() {
+            // Apply gravity to the player's y velocity
+            player.vy += GRAVITY;
+
+            // Apply friction to the player's x velocity
+            player.vx *= FRICTION;
+
+            // Check if the left arrow key is pressed
+            if (keys[37]) {
+                // Move the player to the left
+                player.vx -= SPEED;
+            }
+
+            // Check if the right arrow key is pressed
+            if (keys[39]) {
+                // Move the player to the right
+                player.vx += SPEED;
+            }
+
+            // Check if the up arrow key is pressed and the player is on the ground
+            if (keys[38] && player.onGround) {
+                // Make the player jump
+                player.vy = -JUMP;
+            }
+
+            // Update the player's position based on the velocity
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Check if the player is out of the canvas bounds
+            if (player.x < 0) {
+                // Move the player to the left edge
+                player.x = 0;
+            }
+            if (player.x + player.element.offsetWidth > canvas.width) {
+                // Move the player to the right edge
+                player.x = canvas.width - player.element.offsetWidth;
+            }
+            if (player.y < 0) {
+                // Move the player to the top edge
+                player.y = 0;
+            }
+            if (player.y + player.element.offsetHeight > canvas.height) {
+                // Move the player to the bottom edge
+                player.y = canvas.height - player.element.offsetHeight;
+            }
+
+            // Set the player's onGround flag to false
+            player.onGround = false;
+
+            // Loop through the platforms array
+            for (var i = 0; i < platforms.length; i++) {
+                // Get the current platform
+                var platform = platforms[i];
+
+                // Check if the player is colliding with the platform
+                if (player.x + player.element.offsetWidth > platform.x &&
+                    player.x < platform.x + platform.w &&
+                    player.y + player.element.offsetHeight > platform.y &&
+                    player.y < platform.y + platform.h) {
+
+                    // Check if the player is above the platform
+                    if (player.y + player.element.offsetHeight < platform.y + platform.h / 2) {
+                        // Move the player to the top of the platform
+                        player.y = platform.y - player.element.offsetHeight;
+
+                        // Set the player's y velocity to zero
+                        player.vy = 0;
+
+                        // Set the player's onGround flag to true
+                        player.onGround = true;
+                    }
+                    else {
+                        // Move the player to the bottom of the platform
+                        player.y = platform.y + platform.h;
+
+                        // Set the player's y velocity to zero
+                        player.vy = 0;
+                    }
+                }
+            }
+
+            // Set the player element's style to match the position
+            player.element.style.left = player.x + "px";
+            player.element.style.top = player.y + "px";
+        }
+
+        // Define the render function to draw the game graphics
+        function render() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Loop through the platforms array
+            for (var i = 0; i < platforms.length; i++) {
+                // Get the current platform
+                var platform = platforms[i];
+
+                // Draw the platform as a rectangle
+                ctx.fillStyle = "green";
+                ctx.fillRect(platform.x, platform.y, platform.w, platform.h);
+            }
+        }
+
+        // Define the loop function to run the game loop
+        function loop() {
+            // Update the game logic
+            update();
+
+            // Draw the game graphics
+            render();
+
+            // Request the next animation frame
+            requestAnimationFrame(loop);
+        }
+
+        // Start the game loop
+        loop();
+    </script>
 </body>
 </html>
